@@ -71,22 +71,13 @@
     </div>
   </div>
   <script>
-    const quizData = [
-      {
-        image: "https://upload.wikimedia.org/wikipedia/commons/4/42/Betula_pendula_001.jpg",
-        correct: "Betula pendula",
-        options: ["Betula pendula", "Betula papyrifera", "Betula nigra", "Betula alleghaniensis"]
-      },
-      {
-        image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Platanus_occidentalis.jpg",
-        correct: "Platanus occidentalis",
-        options: ["Platanus occidentalis", "Platanus x acerifolia", "Tilia americana", "Gleditsia triacanthos"]
-      }
-      // Add more quiz questions here for all 7 groups
+    const treeList = [
+      { treeId: 1, speciesName: "Betula pendula" },  // Birch tree
+      { treeId: 2, speciesName: "Platanus occidentalis" },  // Sycamore tree
+      { treeId: 3, speciesName: "Quercus robur" }  // Oak tree
     ];
 
     let currentQuestionIndex = 0;
-
     const treeImage = document.getElementById("tree-image");
     const optionsButtons = [
       document.getElementById("option1"),
@@ -95,27 +86,63 @@
       document.getElementById("option4"),
     ];
 
-    function loadQuestion() {
-      const question = quizData[currentQuestionIndex];
-      treeImage.src = question.image;
+    // Function to fetch tree data from the GBIF API based on tree species name
+    function fetchTreeData(speciesName) {
+      const apiUrl = `https://api.gbif.org/v1/species/search?q=${speciesName}&limit=1`;
 
-      optionsButtons.forEach((button, index) => {
-        button.textContent = question.options[index];
-        button.className = "";
-        button.onclick = () => {
-          if (question.options[index] === question.correct) {
-            button.classList.add("correct");
-          } else {
-            button.classList.add("incorrect");
-          }
-          setTimeout(nextQuestion, 1000);
-        };
+      // Fetch data for the tree species
+      return fetch(apiUrl)
+        .then(response => response.json())
+        .then(data => {
+          const speciesData = data.results[0];  // Taking the first result from the API
+          return {
+            imageUrl: speciesData.iconUrl || 'https://via.placeholder.com/150',  // Use placeholder if no image
+            commonName: speciesData.commonName || speciesName,  // Use speciesName as common name if none is available
+            scientificName: speciesData.scientificName
+          };
+        })
+        .catch(error => {
+          console.error('Error fetching tree data:', error);
+          return {
+            imageUrl: 'https://via.placeholder.com/150',  // Use a placeholder image on error
+            commonName: speciesName,
+            scientificName: speciesName
+          };
+        });
+    }
+
+    // Function to load a quiz question dynamically based on the tree species
+    function loadQuestion() {
+      const question = treeList[currentQuestionIndex];
+      fetchTreeData(question.speciesName).then(treeData => {
+        // Update tree image and options
+        treeImage.src = treeData.imageUrl;
+        const correctOption = treeData.scientificName;
+        
+        const options = [correctOption, "Betula papyrifera", "Platanus x acerifolia", "Quercus alba"];
+        
+        // Shuffle options
+        options.sort(() => Math.random() - 0.5);
+
+        optionsButtons.forEach((button, index) => {
+          button.textContent = options[index];
+          button.className = "";
+          button.onclick = () => {
+            if (options[index] === correctOption) {
+              button.classList.add("correct");
+            } else {
+              button.classList.add("incorrect");
+            }
+            setTimeout(nextQuestion, 1000);
+          };
+        });
       });
     }
 
+    // Function to go to the next question
     function nextQuestion() {
       currentQuestionIndex++;
-      if (currentQuestionIndex >= quizData.length) {
+      if (currentQuestionIndex >= treeList.length) {
         currentQuestionIndex = 0; // Restart the quiz
       }
       loadQuestion();
