@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tree Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background-color: #f4f4f9;
+      text-align: center;
+    }
+    header {
+      background-color: #4caf50;
+      color: white;
+      padding: 1rem;
+    }
+    .container {
+      margin: 20px auto;
+      max-width: 600px;
+      padding: 20px;
+      background: white;
+      border-radius: 10px;
+      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+    img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 10px;
+    }
+    .options {
+      margin-top: 20px;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+    }
+    .options button:hover {
+      background-color: #f1f1f1;
+    }
+    .correct {
+      background-color: #4caf50;
+      color: white;
+    }
+    .incorrect {
+      background-color: #f44336;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tree Quiz</h1>
+    <p>Can you identify the tree from the image?</p>
+  </header>
+  <div class="container">
+    <img id="tree-image" src="" alt="Tree">
+    <div class="options">
+      <button id="option1"></button>
+      <button id="option2"></button>
+      <button id="option3"></button>
+      <button id="option4"></button>
+    </div>
+  </div>
+  <script>
+    const quizData = [
+      {
+        image: "https://upload.wikimedia.org/wikipedia/commons/4/42/Betula_pendula_001.jpg",
+        correct: "Betula pendula",
+        options: ["Betula pendula", "Betula papyrifera", "Betula nigra", "Betula alleghaniensis"]
+      },
+      {
+        image: "https://upload.wikimedia.org/wikipedia/commons/6/6a/Platanus_occidentalis.jpg",
+        correct: "Platanus occidentalis",
+        options: ["Platanus occidentalis", "Platanus x acerifolia", "Tilia americana", "Gleditsia triacanthos"]
+      }
+      // Add more quiz questions here for all 7 groups
+    ];
+
+    let currentQuestionIndex = 0;
+
+    const treeImage = document.getElementById("tree-image");
+    const optionsButtons = [
+      document.getElementById("option1"),
+      document.getElementById("option2"),
+      document.getElementById("option3"),
+      document.getElementById("option4"),
+    ];
+
+    function loadQuestion() {
+      const question = quizData[currentQuestionIndex];
+      treeImage.src = question.image;
+
+      optionsButtons.forEach((button, index) => {
+        button.textContent = question.options[index];
+        button.className = "";
+        button.onclick = () => {
+          if (question.options[index] === question.correct) {
+            button.classList.add("correct");
+          } else {
+            button.classList.add("incorrect");
+          }
+          setTimeout(nextQuestion, 1000);
+        };
+      });
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex >= quizData.length) {
+        currentQuestionIndex = 0; // Restart the quiz
+      }
+      loadQuestion();
+    }
+
+    loadQuestion();
+  </script>
+</body>
+</html>
